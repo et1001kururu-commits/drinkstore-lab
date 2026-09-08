@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>最爛版 Drink Store 水雲朵官網</title>
+  <style>
+    :root {
+      --morandi-green: #5B7A75;
+      --morandi-dark: #374E4A;
+      --bg-light: #F4F7F6;
+      --text-color: #2D3748;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; line-height: 1.6; background: var(--bg-light); color: var(--text-color); }
+    header { background: #fff; border-bottom: 2px solid var(--morandi-green); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
+    .logo { font-weight: bold; font-size: 1.2rem; color: var(--morandi-dark); }
+    nav a { margin-left: 1rem; text-decoration: none; color: var(--text-color); font-size: 0.9rem; }
+    .hero { background: var(--morandi-green); color: #fff; text-align: center; padding: 4rem 1rem; }
+    .hero h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    section { padding: 3rem 1.5rem; max-width: 800px; margin: 0 auto; }
+    h2 { border-left: 5px solid var(--morandi-green); padding-left: 0.5rem; margin-bottom: 1.5rem; color: var(--morandi-dark); }
+    .menu-tabs button { padding: 0.5rem 1rem; border: 1px solid var(--morandi-green); background: #fff; cursor: pointer; border-radius: 4px; }
+    .menu-tabs button.active { background: var(--morandi-green); color: #fff; }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .drink-card { background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px; text-align: center; }
+    .store-filter { margin-bottom: 1rem; padding: 0.5rem; width: 100%; max-width: 200px; }
+    .store-item { background: #fff; padding: 0.8rem; margin-bottom: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.3rem; }
+    .form-group input, .form-group select { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
+    .submit-btn { width: 100%; padding: 0.75rem; background: var(--morandi-dark); color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    footer { text-align: center; padding: 2rem; font-size: 0.8rem; color: #888; border-top: 1px solid #ddd; background: #fff; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">DRINK STORE 水雲朵 (最爛版)</div>
+    <nav>
+      <a href="#menu">嚼美菜單</a>
+      <a href="#stores">門市據點</a>
+      <a href="#franchise">加盟專區</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h1>伯爵嚼霜 ‧ 咀嚼系新主張</h1>
+    <p>新品上市期間，第二杯享折扣優惠</p>
+  </div>
+
+  <section id="menu">
+    <h2>嚼美菜單</h2>
+    <div class="menu-tabs">
+      <button class="active" onclick="filterMenu('all')">全部品項</button>
+      <button onclick="filterMenu('chew')">咀嚼嚼美系列</button>
+      <button onclick="filterMenu('tea')">原鄉原茶</button>
+    </div>
+    <div class="menu-grid">
+      <div class="drink-card" data-cat="chew">
+        <h4>伯爵嚼霜</h4>
+        <p>NT$ 65</p>
+      </div>
+      <div class="drink-card" data-cat="chew">
+        <h4>黑糖珍珠厚奶茶</h4>
+        <p>NT$ 70</p>
+      </div>
+      <div class="drink-card" data-cat="tea">
+        <h4>高山冷焙青茶</h4>
+        <p>NT$ 35</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="stores">
+    <h2>門市據點</h2>
+    <select class="store-filter" onchange="filterStores(this.value)">
+      <option value="all">全部地區</option>
+      <option value="keelung">基隆市</option>
+      <option value="taipei">台北市</option>
+    </select>
+    <div id="store-list">
+      <div class="store-item" data-region="keelung">
+        <strong>基隆義二店</strong>
+        <p>地址：基隆市中正區義二路</p>
+        <p>外送電話：(02) 242X-XXXX</p>
+      </div>
+      <div class="store-item" data-region="taipei">
+        <strong>台北通化店</strong>
+        <p>地址：台北市大安區通化街</p>
+        <p>外送電話：(02) 270X-XXXX</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="franchise">
+    <h2>加盟諮詢表單</h2>
+    <form onsubmit="handleFranchiseSubmit(event)">
+      <div class="form-group">
+        <label>聯絡人姓名：</label>
+        <input type="text" id="client-name" required placeholder="例如：王小明">
+      </div>
+      <div class="form-group">
+        <label>聯絡手機：</label>
+        <input type="tel" id="client-phone" required placeholder="例如：0912345678">
+      </div>
+      <div class="form-group">
+        <label>預計展店地區：</label>
+        <select id="client-city">
+          <option>基隆市</option>
+          <option>雙北地區</option>
+          <option>桃竹苗</option>
+          <option>中南部</option>
+        </select>
+      </div>
+      <button type="submit" class="submit-btn">送出申請</button>
+    </form>
+    <p id="form-msg" style="margin-top: 1rem; color: green;"></p>
+  </section>
+
+  <footer>
+    <p>© 2026 DRINK STORE 水雲朵 練習專案</p>
+  </footer>
+
+  <script>
+    function filterMenu(category) {
+      const cards = document.querySelectorAll('.drink-card');
+      cards.forEach(card => {
+        if (category === 'all' || card.getAttribute('data-cat') === category) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      const btns = document.querySelectorAll('.menu-tabs button');
+      btns.forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function filterStores(region) {
+      const stores = document.querySelectorAll('.store-item');
+      stores.forEach(store => {
+        if (region === 'all' || store.getAttribute('data-region') === region) {
+          store.style.display = 'block';
+        } else {
+          store.style.display = 'none';
+        }
+      });
+    }
+
+    function handleFranchiseSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('client-name').value;
+      const city = document.getElementById('client-city').value;
+      document.getElementById('form-msg').innerText = `感謝 ${name}！已收到您在「${city}」的加盟意向（此為前端測試示範）。`;
+      e.target.reset();
+    }
+  </script>
+</body>
+</html>
