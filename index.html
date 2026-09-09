@@ -3,35 +3,381 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>最爛版 Drink Store 水雲朵官網</title>
+  <title>DRINK STORE 水雲朵 - 潮流極粹茶飲</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --morandi-green: #5B7A75;
-      --morandi-dark: #374E4A;
-      --bg-light: #F4F7F6;
-      --text-color: #2D3748;
+      --bg-dark: #101416;
+      --bg-card: #182024;
+      --bg-card-hover: #1e282e;
+      --morandi-green: #54756c;
+      --morandi-green-light: #769a90;
+      --morandi-dark: #273834;
+      --morandi-slate: #3a4953;
+      --morandi-silver: #9aaab4;
+      --text-main: #ecefe6;
+      --text-sub: #8b9ea0;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(84, 117, 108, 0.4);
+      --accent-gold: #c5a880;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: sans-serif; line-height: 1.6; background: var(--bg-light); color: var(--text-color); }
-    header { background: #fff; border-bottom: 2px solid var(--morandi-green); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
-    .logo { font-weight: bold; font-size: 1.2rem; color: var(--morandi-dark); }
-    nav a { margin-left: 1rem; text-decoration: none; color: var(--text-color); font-size: 0.9rem; }
-    .hero { background: var(--morandi-green); color: #fff; text-align: center; padding: 4rem 1rem; }
-    .hero h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-    section { padding: 3rem 1.5rem; max-width: 800px; margin: 0 auto; }
-    h2 { border-left: 5px solid var(--morandi-green); padding-left: 0.5rem; margin-bottom: 1.5rem; color: var(--morandi-dark); }
-    .menu-tabs button { padding: 0.5rem 1rem; border: 1px solid var(--morandi-green); background: #fff; cursor: pointer; border-radius: 4px; }
-    .menu-tabs button.active { background: var(--morandi-green); color: #fff; }
-    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .drink-card { background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px; text-align: center; }
-    .store-filter { margin-bottom: 1rem; padding: 0.5rem; width: 100%; max-width: 200px; }
-    .store-item { background: #fff; padding: 0.8rem; margin-bottom: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; margin-bottom: 0.3rem; }
-    .form-group input, .form-group select { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
-    .submit-btn { width: 100%; padding: 0.75rem; background: var(--morandi-dark); color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    footer { text-align: center; padding: 2rem; font-size: 0.8rem; color: #888; border-top: 1px solid #ddd; background: #fff; }
-    footer p { margin-bottom: 0.25rem; }
+    
+    body {
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.7;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      letter-spacing: 0.04em;
+      overflow-x: hidden;
+    }
+
+    /* Header Navigation */
+    header {
+      background: rgba(16, 20, 22, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1.2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: border-color 0.3s;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--text-main);
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logo::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--morandi-green-light);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--morandi-green-light);
+    }
+
+    nav a {
+      margin-left: 1.8rem;
+      text-decoration: none;
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      font-weight: 400;
+      position: relative;
+      transition: color 0.3s ease;
+      padding: 0.3rem 0;
+    }
+
+    nav a:hover {
+      color: var(--morandi-green-light);
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--morandi-green-light);
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, rgba(39, 56, 52, 0.8) 0%, rgba(16, 20, 22, 0.95) 100%),
+                  radial-gradient(circle at 80% 20%, rgba(84, 117, 108, 0.15) 0%, transparent 50%);
+      color: var(--text-main);
+      text-align: center;
+      padding: 6rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.015) 2px, rgba(255, 255, 255, 0.015) 4px);
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      letter-spacing: 0.12em;
+      background: linear-gradient(180deg, #ffffff 0%, var(--morandi-silver) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      font-weight: 300;
+      letter-spacing: 0.08em;
+    }
+
+    /* Section Commons */
+    section {
+      padding: 4.5rem 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      border-left: 3px solid var(--morandi-green-light);
+      padding-left: 1rem;
+      margin-bottom: 2rem;
+      color: var(--text-main);
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Menu Tabs */
+    .menu-tabs {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .menu-tabs button {
+      padding: 0.6rem 1.4rem;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-sub);
+      cursor: pointer;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .menu-tabs button:hover {
+      border-color: var(--morandi-green-light);
+      color: var(--text-main);
+      transform: translateY(-2px);
+    }
+
+    .menu-tabs button.active {
+      background: var(--morandi-green);
+      border-color: var(--morandi-green);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(84, 117, 108, 0.35);
+    }
+
+    /* Drink Grid & Cards */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .drink-card {
+      background: var(--bg-card);
+      padding: 1.8rem 1.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      text-align: center;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      overflow: hidden;
+    }
+
+    .drink-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--morandi-green-light), transparent);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .drink-card:hover {
+      transform: translateY(-8px);
+      background: var(--bg-card-hover);
+      border-color: var(--border-glow);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(84, 117, 108, 0.15);
+    }
+
+    .drink-card:hover::before {
+      opacity: 1;
+    }
+
+    .drink-card h4 {
+      font-size: 1.05rem;
+      color: var(--text-main);
+      font-weight: 500;
+      margin-bottom: 0.8rem;
+    }
+
+    .drink-card p {
+      color: var(--morandi-green-light);
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* Store Controls & Items */
+    .store-filter {
+      margin-bottom: 1.5rem;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      max-width: 260px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
+    }
+
+    .store-filter:focus, .store-filter:hover {
+      border-color: var(--morandi-green-light);
+    }
+
+    .store-item {
+      background: var(--bg-card);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .store-item:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateX(4px);
+    }
+
+    .store-item strong {
+      display: block;
+      font-size: 1.1rem;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    .store-item p {
+      color: var(--text-sub);
+      font-size: 0.9rem;
+      margin-top: 0.2rem;
+    }
+
+    /* Form Elements */
+    form {
+      background: var(--bg-card);
+      padding: 2.2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-sub);
+      font-size: 0.9rem;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--morandi-green-light);
+      box-shadow: 0 0 0 3px rgba(84, 117, 108, 0.2);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, var(--morandi-green) 0%, var(--morandi-dark) 100%);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(135deg, var(--morandi-green-light) 0%, var(--morandi-green) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(84, 117, 108, 0.4);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      border-top: 1px solid var(--border-color);
+      background: #0b0e10;
+      line-height: 1.8;
+    }
+
+    footer p {
+      margin-bottom: 0.3rem;
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 1rem 1.2rem; }
+      .hero { padding: 4rem 1rem; }
+      .hero h1 { font-size: 1.8rem; }
+      section { padding: 3rem 1rem; }
+      form { padding: 1.5rem; }
+    }
   </style>
 </head>
 <body>
@@ -116,7 +462,7 @@
       </div>
       <button type="submit" class="submit-btn">送出申請</button>
     </form>
-    <p id="form-msg" style="margin-top: 1rem; color: green;"></p>
+    <p id="form-msg" style="margin-top: 1.2rem; color: #769a90; font-weight: 500;"></p>
   </section>
 
   <footer>
@@ -138,7 +484,9 @@
       });
       const btns = document.querySelectorAll('.menu-tabs button');
       btns.forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
     }
 
     function filterStores(region) {
