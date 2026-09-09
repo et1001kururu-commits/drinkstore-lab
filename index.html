@@ -145,6 +145,10 @@
       margin: 0 auto;
     }
 
+    .featured-section {
+      max-width: 1050px;
+    }
+
     h2 {
       border-left: 3px solid var(--morandi-green-light);
       padding-left: 1rem;
@@ -155,6 +159,170 @@
       letter-spacing: 0.08em;
       display: flex;
       align-items: center;
+    }
+
+    /* Featured Showcase Horizontal Slider */
+    .featured-slider {
+      display: flex;
+      gap: 1.5rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 1rem 0.5rem 2rem 0.5rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--morandi-slate) var(--bg-card);
+    }
+
+    .featured-slider::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .featured-slider::-webkit-scrollbar-track {
+      background: var(--bg-card);
+      border-radius: 3px;
+    }
+
+    .featured-slider::-webkit-scrollbar-thumb {
+      background: var(--morandi-slate);
+      border-radius: 3px;
+    }
+
+    .featured-card {
+      flex: 0 0 280px;
+      scroll-snap-align: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.2rem 1.5rem 1.8rem;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .featured-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-glow);
+      box-shadow: 0 16px 35px rgba(0, 0, 0, 0.6);
+    }
+
+    /* English Watermark */
+    .bg-watermark {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.04);
+      text-transform: uppercase;
+      white-space: nowrap;
+      letter-spacing: 0.1em;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Pure CSS Trapezoid Cup Wrapper */
+    .cup-wrapper {
+      position: relative;
+      width: 120px;
+      height: 160px;
+      margin: 1.5rem 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .cup-glow {
+      position: absolute;
+      width: 100px;
+      height: 140px;
+      border-radius: 40%;
+      filter: blur(28px);
+      opacity: 0.55;
+      transition: opacity 0.35s ease, filter 0.35s ease;
+      pointer-events: none;
+    }
+
+    .cup-body {
+      width: 120px;
+      height: 160px;
+      clip-path: polygon(10% 0%, 90% 0%, 80% 100%, 20% 100%);
+      position: relative;
+      z-index: 2;
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.15);
+    }
+
+    .featured-card:hover .cup-wrapper {
+      transform: translateY(-8px);
+    }
+
+    .featured-card:hover .cup-glow {
+      opacity: 0.9;
+      filter: blur(34px);
+    }
+
+    /* Card Text Content */
+    .featured-tag {
+      display: inline-block;
+      padding: 0.25rem 0.85rem;
+      background: rgba(197, 168, 128, 0.12);
+      border: 1px solid rgba(197, 168, 128, 0.35);
+      border-radius: 20px;
+      font-size: 0.78rem;
+      color: var(--accent-gold);
+      margin-bottom: 0.6rem;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+      z-index: 3;
+    }
+
+    .featured-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.4rem;
+      line-height: 1.35;
+      z-index: 3;
+    }
+
+    .featured-desc {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+      z-index: 3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Skeleton Loader */
+    .skeleton-card {
+      flex: 0 0 280px;
+      scroll-snap-align: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.2rem 1.5rem 1.8rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .skeleton-box {
+      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-shimmer 1.5s infinite;
+    }
+
+    @keyframes skeleton-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
     }
 
     /* Menu Tabs */
@@ -377,6 +545,7 @@
       .hero h1 { font-size: 1.8rem; }
       section { padding: 3rem 1rem; }
       form { padding: 1.5rem; }
+      .featured-card { flex: 0 0 250px; padding: 1.8rem 1.2rem 1.5rem; }
     }
   </style>
 </head>
@@ -385,6 +554,7 @@
   <header>
     <div class="logo">DRINK STORE 水雲朵 (最爛版)</div>
     <nav>
+      <a href="#featured">精選動態</a>
       <a href="#menu">嚼美菜單</a>
       <a href="#stores">門市據點</a>
       <a href="#franchise">加盟專區</a>
@@ -396,8 +566,37 @@
     <p>慶祝第一天上線，全店免費喝到飽</p>
   </div>
 
+  <!-- 精選飲品動態展示區 (Google Sheets API 即時載入) -->
+  <section id="featured" class="featured-section">
+    <h2>精選飲品動態展示區</h2>
+    <div class="featured-slider" id="featured-slider">
+      <!-- 預設 Skeleton 骨架屏 Loading 畫面 -->
+      <div class="skeleton-card">
+        <div class="skeleton-box" style="width: 100px; height: 16px; border-radius: 4px; opacity: 0.4;"></div>
+        <div class="skeleton-box" style="width: 120px; height: 160px; clip-path: polygon(10% 0%, 90% 0%, 80% 100%, 20% 100%); margin: 1.5rem 0;"></div>
+        <div class="skeleton-box" style="width: 70px; height: 22px; border-radius: 20px; margin-bottom: 0.8rem;"></div>
+        <div class="skeleton-box" style="width: 140px; height: 24px; border-radius: 4px; margin-bottom: 0.5rem;"></div>
+        <div class="skeleton-box" style="width: 180px; height: 32px; border-radius: 4px;"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton-box" style="width: 100px; height: 16px; border-radius: 4px; opacity: 0.4;"></div>
+        <div class="skeleton-box" style="width: 120px; height: 160px; clip-path: polygon(10% 0%, 90% 0%, 80% 100%, 20% 100%); margin: 1.5rem 0;"></div>
+        <div class="skeleton-box" style="width: 70px; height: 22px; border-radius: 20px; margin-bottom: 0.8rem;"></div>
+        <div class="skeleton-box" style="width: 140px; height: 24px; border-radius: 4px; margin-bottom: 0.5rem;"></div>
+        <div class="skeleton-box" style="width: 180px; height: 32px; border-radius: 4px;"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton-box" style="width: 100px; height: 16px; border-radius: 4px; opacity: 0.4;"></div>
+        <div class="skeleton-box" style="width: 120px; height: 160px; clip-path: polygon(10% 0%, 90% 0%, 80% 100%, 20% 100%); margin: 1.5rem 0;"></div>
+        <div class="skeleton-box" style="width: 70px; height: 22px; border-radius: 20px; margin-bottom: 0.8rem;"></div>
+        <div class="skeleton-box" style="width: 140px; height: 24px; border-radius: 4px; margin-bottom: 0.5rem;"></div>
+        <div class="skeleton-box" style="width: 180px; height: 32px; border-radius: 4px;"></div>
+      </div>
+    </div>
+  </section>
+
   <section id="menu">
-    <h2>嚼美菜單</h2>
+    <h2>嚼美菜���</h2>
     <div class="menu-tabs">
       <button class="active" onclick="filterMenu('all')">全部品項</button>
       <button onclick="filterMenu('chew')">咀嚼嚼美系列</button>
@@ -448,7 +647,7 @@
         <input type="text" id="client-name" required placeholder="例如：王小明">
       </div>
       <div class="form-group">
-        <label>聯絡手機：</label>
+        <label>聯��手機：</label>
         <input type="tel" id="client-phone" required placeholder="例如：0912345678">
       </div>
       <div class="form-group">
@@ -473,6 +672,68 @@
   </footer>
 
   <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzewJY3y60J8vYFwHQFytYbRdcO94FKIW2Kxt-0kMpimOzSlrC-eWZzwRaei4PhsWqnuA/exec';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchFeaturedDrinks();
+    });
+
+    async function fetchFeaturedDrinks() {
+      const container = document.getElementById('featured-slider');
+      if (!container) return;
+
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Network response failed');
+        const drinks = await response.json();
+        renderFeaturedDrinks(drinks);
+      } catch (error) {
+        console.error('即時載入飲品資料失敗：', error);
+        container.innerHTML = `<div style="color: var(--text-sub); width: 100%; text-align: center; padding: 2rem;">飲品資料載入暫時無法使用，請重新整理頁面。</div>`;
+      }
+    }
+
+    function renderFeaturedDrinks(items) {
+      const container = document.getElementById('featured-slider');
+      if (!container) return;
+
+      if (!Array.isArray(items) || items.length === 0) {
+        container.innerHTML = `<div style="color: var(--text-sub); width: 100%; text-align: center; padding: 2rem;">目前無精選飲品資料</div>`;
+        return;
+      }
+
+      container.innerHTML = items.map(item => {
+        const mainColor = item.mainColor || '#54756c';
+        const tag = item.tag || '特選推薦';
+        const enName = item.enName || 'DRINK';
+        const name = item.name || '精選特調';
+        const desc = item.desc || '';
+
+        return `
+          <div class="featured-card">
+            <div class="bg-watermark">${escapeHtml(enName)}</div>
+            <div class="cup-wrapper">
+              <div class="cup-glow" style="background-color: ${escapeHtml(mainColor)}; box-shadow: 0 0 35px ${escapeHtml(mainColor)};"></div>
+              <div class="cup-body" style="background-color: ${escapeHtml(mainColor)};"></div>
+            </div>
+            <span class="featured-tag">${escapeHtml(tag)}</span>
+            <h3 class="featured-title">${escapeHtml(name)}</h3>
+            <p class="featured-desc">${escapeHtml(desc)}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     function filterMenu(category) {
       const cards = document.querySelectorAll('.drink-card');
       cards.forEach(card => {
