@@ -145,10 +145,6 @@
       margin: 0 auto;
     }
 
-    .featured-section {
-      max-width: 1050px;
-    }
-
     h2 {
       border-left: 3px solid var(--morandi-green-light);
       padding-left: 1rem;
@@ -161,165 +157,211 @@
       align-items: center;
     }
 
-    /* Featured Showcase Horizontal Slider */
+    /* === 精品級 3D 浮動卡片展示區 === */
+    .featured-section {
+      max-width: 100%;
+      padding: 5rem 0;
+      position: relative;
+    }
+    
+    .featured-section h2 {
+      max-width: 900px;
+      margin: 0 auto 2rem auto;
+      padding: 0 1.5rem;
+    }
+
     .featured-slider {
       display: flex;
-      gap: 1.5rem;
+      gap: 3rem;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
-      padding: 1rem 0.5rem 2rem 0.5rem;
+      /* 確保最左與最右的卡片能完美置中 */
+      padding: 2rem calc(50vw - 170px) 4rem calc(50vw - 170px);
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: thin;
-      scrollbar-color: var(--morandi-slate) var(--bg-card);
+      scrollbar-width: none; /* 隱藏卷軸 */
+      scroll-behavior: smooth;
     }
-
     .featured-slider::-webkit-scrollbar {
-      height: 6px;
+      display: none;
     }
 
-    .featured-slider::-webkit-scrollbar-track {
-      background: var(--bg-card);
-      border-radius: 3px;
-    }
-
-    .featured-slider::-webkit-scrollbar-thumb {
-      background: var(--morandi-slate);
-      border-radius: 3px;
-    }
-
-    .featured-card {
-      flex: 0 0 280px;
+    .featured-slide {
+      flex: 0 0 340px;
       scroll-snap-align: center;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 2.2rem 1.5rem 1.8rem;
       position: relative;
-      overflow: hidden;
+      background: linear-gradient(145deg, rgba(30, 40, 46, 0.7) 0%, rgba(16, 20, 22, 0.9) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 28px;
+      padding: 3.5rem 1.5rem 2.5rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+      overflow: hidden;
     }
 
-    .featured-card:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border-glow);
-      box-shadow: 0 16px 35px rgba(0, 0, 0, 0.6);
+    .featured-slide:hover {
+      transform: translateY(-12px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
-    /* English Watermark */
+    /* 巨大的背景浮水印字體 */
     .bg-watermark {
       position: absolute;
-      top: 15px;
+      top: 15%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 2.8rem;
+      font-size: 6rem;
       font-weight: 900;
-      color: rgba(255, 255, 255, 0.04);
+      font-family: 'Arial Black', Impact, sans-serif;
       text-transform: uppercase;
+      opacity: 0.12;
       white-space: nowrap;
-      letter-spacing: 0.1em;
       pointer-events: none;
-      user-select: none;
+      z-index: 0;
+      letter-spacing: -0.02em;
     }
 
-    /* Pure CSS Trapezoid Cup Wrapper */
-    .cup-wrapper {
+    /* 懸浮手搖杯與光暈 */
+    .cup-showcase {
       position: relative;
-      width: 120px;
-      height: 160px;
-      margin: 1.5rem 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      width: 140px;
+      height: 190px;
+      margin: 1.5rem 0 2.5rem 0;
+      z-index: 2;
+      /* 浮動呼吸動畫 */
+      animation: floating 4s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
     }
 
     .cup-glow {
       position: absolute;
-      width: 100px;
-      height: 140px;
-      border-radius: 40%;
-      filter: blur(28px);
-      opacity: 0.55;
-      transition: opacity 0.35s ease, filter 0.35s ease;
-      pointer-events: none;
+      top: 20%;
+      left: 10%;
+      width: 80%;
+      height: 70%;
+      border-radius: 50%;
+      filter: blur(35px);
+      opacity: 0.5;
+      transition: opacity 0.5s;
     }
 
+    .featured-slide:hover .cup-glow {
+      opacity: 0.8;
+      filter: blur(45px);
+    }
+
+    /* 純 CSS 上寬下窄梯形手搖杯，帶立體漸層 */
     .cup-body {
-      width: 120px;
-      height: 160px;
-      clip-path: polygon(10% 0%, 90% 0%, 80% 100%, 20% 100%);
+      width: 100%;
+      height: 100%;
+      clip-path: polygon(15% 0%, 85% 0%, 75% 100%, 25% 100%);
       position: relative;
       z-index: 2;
-      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.15);
+      /* 內部打光與陰影營造立體感 */
+      box-shadow: inset 0 20px 20px -10px rgba(255,255,255,0.4), 
+                  inset 0 -20px 30px rgba(0,0,0,0.5);
     }
 
-    .featured-card:hover .cup-wrapper {
-      transform: translateY(-8px);
+    /* 懸浮核桃 / 小色塊點綴 */
+    .decor-dot {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.5;
+      filter: blur(2px);
+      z-index: 1;
+    }
+    .dot-1 { width: 14px; height: 14px; top: 20%; left: 15%; animation: float-slow 5s infinite alternate; }
+    .dot-2 { width: 22px; height: 22px; top: 60%; right: 12%; animation: float-slow 7s infinite alternate-reverse; }
+    .dot-3 { width: 10px; height: 10px; bottom: 30%; left: 22%; animation: float-slow 6s infinite alternate; }
+
+    @keyframes float-slow {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(15px, -20px) rotate(45deg); }
     }
 
-    .featured-card:hover .cup-glow {
-      opacity: 0.9;
-      filter: blur(34px);
-    }
-
-    /* Card Text Content */
-    .featured-tag {
-      display: inline-block;
-      padding: 0.25rem 0.85rem;
-      background: rgba(197, 168, 128, 0.12);
-      border: 1px solid rgba(197, 168, 128, 0.35);
-      border-radius: 20px;
-      font-size: 0.78rem;
-      color: var(--accent-gold);
-      margin-bottom: 0.6rem;
-      letter-spacing: 0.06em;
-      font-weight: 500;
+    /* 卡片文字與按鈕 */
+    .slide-content {
+      position: relative;
       z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
     }
 
-    .featured-title {
-      font-size: 1.25rem;
+    .slide-tag {
+      padding: 0.35rem 1.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 30px;
+      font-size: 0.8rem;
+      color: #fff;
+      margin-bottom: 1rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .slide-title {
+      font-size: 1.5rem;
       font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 0.4rem;
-      line-height: 1.35;
-      z-index: 3;
+      color: #fff;
+      margin-bottom: 0.6rem;
+      line-height: 1.3;
     }
 
-    .featured-desc {
-      font-size: 0.85rem;
+    .slide-desc {
+      font-size: 0.9rem;
       color: var(--text-sub);
-      line-height: 1.5;
-      z-index: 3;
+      margin-bottom: 1.8rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
+    .slide-btn {
+      padding: 0.7rem 1.8rem;
+      background: #fff;
+      color: #101416;
+      border: none;
+      border-radius: 30px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 80%;
+    }
+    
+    .slide-btn:hover {
+      background: var(--morandi-green-light);
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 10px 20px rgba(118, 154, 144, 0.3);
+    }
+
     /* Skeleton Loader */
-    .skeleton-card {
-      flex: 0 0 280px;
+    .skeleton-slide {
+      flex: 0 0 340px;
       scroll-snap-align: center;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 2.2rem 1.5rem 1.8rem;
+      border-radius: 28px;
+      padding: 3.5rem 1.5rem 2.5rem;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-
     .skeleton-box {
       background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
       background-size: 200% 100%;
       animation: skeleton-shimmer 1.5s infinite;
     }
-
     @keyframes skeleton-shimmer {
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
@@ -545,7 +587,8 @@
       .hero h1 { font-size: 1.8rem; }
       section { padding: 3rem 1rem; }
       form { padding: 1.5rem; }
-      .featured-card { flex: 0 0 250px; padding: 1.8rem 1.2rem 1.5rem; }
+      .featured-slider { padding: 2rem 1.5rem 4rem 1.5rem; }
+      .featured-slide { flex: 0 0 280px; padding: 2.5rem 1.2rem 2rem; }
     }
   </style>
 </head>
@@ -566,208 +609,8 @@
     <p>慶祝第一天上線，全店免費喝到飽</p>
   </div>
 
-  <!-- 精選飲品動態展示區 (Google Sheets API 即時載入) -->
   <section id="featured" class="featured-section">
     <h2>精選飲品動態展示區</h2>
     <div class="featured-slider" id="featured-slider">
-      <!-- 預設 Skeleton 骨架屏 Loading 畫面 -->
-      <div class="skeleton-card">
-        <div class="skeleton-box" style="width: 100px; height: 16px; border-radius: 4px; opacity: 0.4;"></div>
-        <div class="skeleton-box" style="width: 120px; height: 160px; clip-path: polygon(10% 0%, 90% 0%, 80% 100%, 20% 100%); margin: 1.5rem 0;"></div>
-        <div class="skeleton-box" style="width: 70px; height: 22px; border-radius: 20px; margin-bottom: 0.8rem;"></div>
-        <div class="skeleton-box" style="width: 140px; height: 24px; border-radius: 4px; margin-bottom: 0.5rem;"></div>
-        <div class="skeleton-box" style="width: 180px; height: 32px; border-radius: 4px;"></div>
-      </div>
-      <div class="skeleton-card">
-        <div class="skeleton-box" style="width: 100px; height: 16px; border-radius: 4px; opacity: 0.4;"></div>
-        <div class="skeleton-box" style="width: 120px; height: 160px; clip-path: polygon(10% 0%, 90% 0%, 80% 100%, 20% 100%); margin: 1.5rem 0;"></div>
-        <div class="skeleton-box" style="width: 70px; height: 22px; border-radius: 20px; margin-bottom: 0.8rem;"></div>
-        <div class="skeleton-box" style="width: 140px; height: 24px; border-radius: 4px; margin-bottom: 0.5rem;"></div>
-        <div class="skeleton-box" style="width: 180px; height: 32px; border-radius: 4px;"></div>
-      </div>
-      <div class="skeleton-card">
-        <div class="skeleton-box" style="width: 100px; height: 16px; border-radius: 4px; opacity: 0.4;"></div>
-        <div class="skeleton-box" style="width: 120px; height: 160px; clip-path: polygon(10% 0%, 90% 0%, 80% 100%, 20% 100%); margin: 1.5rem 0;"></div>
-        <div class="skeleton-box" style="width: 70px; height: 22px; border-radius: 20px; margin-bottom: 0.8rem;"></div>
-        <div class="skeleton-box" style="width: 140px; height: 24px; border-radius: 4px; margin-bottom: 0.5rem;"></div>
-        <div class="skeleton-box" style="width: 180px; height: 32px; border-radius: 4px;"></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="menu">
-    <h2>嚼美菜���</h2>
-    <div class="menu-tabs">
-      <button class="active" onclick="filterMenu('all')">全部品項</button>
-      <button onclick="filterMenu('chew')">咀嚼嚼美系列</button>
-      <button onclick="filterMenu('tea')">原鄉原茶</button>
-    </div>
-    <div class="menu-grid">
-      <div class="drink-card" data-cat="chew">
-        <h4>小喬私房手搖 ‧ 喝一口就成仙</h4>
-        <p>NT$ 65</p>
-      </div>
-      <div class="drink-card" data-cat="chew">
-        <h4>黑糖珍珠厚奶茶</h4>
-        <p>NT$ 70</p>
-      </div>
-      <div class="drink-card" data-cat="tea">
-        <h4>高山冷焙青茶</h4>
-        <p>NT$ 35</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="stores">
-    <h2>門市據點</h2>
-    <select class="store-filter" onchange="filterStores(this.value)">
-      <option value="all">全部地區</option>
-      <option value="keelung">基隆市</option>
-      <option value="taipei">台北市</option>
-    </select>
-    <div id="store-list">
-      <div class="store-item" data-region="keelung">
-        <strong>基隆義二店</strong>
-        <p>地址：基隆市中正區義二路</p>
-        <p>外送電話：(02) 242X-XXXX</p>
-      </div>
-      <div class="store-item" data-region="taipei">
-        <strong>台北通化店</strong>
-        <p>地址：台北市大安區通化街</p>
-        <p>外送電話：(02) 270X-XXXX</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="franchise">
-    <h2>加盟諮詢表單</h2>
-    <form onsubmit="handleFranchiseSubmit(event)">
-      <div class="form-group">
-        <label>聯絡人姓名：</label>
-        <input type="text" id="client-name" required placeholder="例如：王小明">
-      </div>
-      <div class="form-group">
-        <label>聯��手機：</label>
-        <input type="tel" id="client-phone" required placeholder="例如：0912345678">
-      </div>
-      <div class="form-group">
-        <label>預計展店地區：</label>
-        <select id="client-city">
-          <option>基隆市</option>
-          <option>雙北地區</option>
-          <option>桃竹苗</option>
-          <option>中南部</option>
-        </select>
-      </div>
-      <button type="submit" class="submit-btn">送出申請</button>
-    </form>
-    <p id="form-msg" style="margin-top: 1.2rem; color: #769a90; font-weight: 500;"></p>
-  </section>
-
-  <footer>
-    <p>公司：雲洋國際餐飲有限公司</p>
-    <p>電話：(02) 2426-1177</p>
-    <p>地址：基隆市中正區義二路26號</p>
-    <p>Copyright © 2026 雲洋國際餐飲有限公司 Web design by Greatest Idea Strategy Co.,Ltd</p>
-  </footer>
-
-  <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzewJY3y60J8vYFwHQFytYbRdcO94FKIW2Kxt-0kMpimOzSlrC-eWZzwRaei4PhsWqnuA/exec';
-
-    document.addEventListener('DOMContentLoaded', () => {
-      fetchFeaturedDrinks();
-    });
-
-    async function fetchFeaturedDrinks() {
-      const container = document.getElementById('featured-slider');
-      if (!container) return;
-
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Network response failed');
-        const drinks = await response.json();
-        renderFeaturedDrinks(drinks);
-      } catch (error) {
-        console.error('即時載入飲品資料失敗：', error);
-        container.innerHTML = `<div style="color: var(--text-sub); width: 100%; text-align: center; padding: 2rem;">飲品資料載入暫時無法使用，請重新整理頁面。</div>`;
-      }
-    }
-
-    function renderFeaturedDrinks(items) {
-      const container = document.getElementById('featured-slider');
-      if (!container) return;
-
-      if (!Array.isArray(items) || items.length === 0) {
-        container.innerHTML = `<div style="color: var(--text-sub); width: 100%; text-align: center; padding: 2rem;">目前無精選飲品資料</div>`;
-        return;
-      }
-
-      container.innerHTML = items.map(item => {
-        const mainColor = item.mainColor || '#54756c';
-        const tag = item.tag || '特選推薦';
-        const enName = item.enName || 'DRINK';
-        const name = item.name || '精選特調';
-        const desc = item.desc || '';
-
-        return `
-          <div class="featured-card">
-            <div class="bg-watermark">${escapeHtml(enName)}</div>
-            <div class="cup-wrapper">
-              <div class="cup-glow" style="background-color: ${escapeHtml(mainColor)}; box-shadow: 0 0 35px ${escapeHtml(mainColor)};"></div>
-              <div class="cup-body" style="background-color: ${escapeHtml(mainColor)};"></div>
-            </div>
-            <span class="featured-tag">${escapeHtml(tag)}</span>
-            <h3 class="featured-title">${escapeHtml(name)}</h3>
-            <p class="featured-desc">${escapeHtml(desc)}</p>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    function filterMenu(category) {
-      const cards = document.querySelectorAll('.drink-card');
-      cards.forEach(card => {
-        if (category === 'all' || card.getAttribute('data-cat') === category) {
-          card.style.display = 'block';
-        } else {
-          card.style.display = 'none';
-        }
-      });
-      const btns = document.querySelectorAll('.menu-tabs button');
-      btns.forEach(b => b.classList.remove('active'));
-      if (event && event.target) {
-        event.target.classList.add('active');
-      }
-    }
-
-    function filterStores(region) {
-      const stores = document.querySelectorAll('.store-item');
-      stores.forEach(store => {
-        if (region === 'all' || store.getAttribute('data-region') === region) {
-          store.style.display = 'block';
-        } else {
-          store.style.display = 'none';
-        }
-      });
-    }
-
-    function handleFranchiseSubmit(e) {
-      e.preventDefault();
-      const name = document.getElementById('client-name').value;
-      const city = document.getElementById('client-city').value;
-      document.getElementById('form-msg').innerText = `感謝 ${name}！已收到您在「${city}」的加盟意向（此為前端測試示範）。`;
-      e.target.reset();
-    }
-  </script>
-</body>
-</html>
+      <div class="skeleton-slide">
+        <div class="skeleton-box" style="width: 140px; height: 190px;
