@@ -1,146 +1,106 @@
-name: AI Autonomous Code Iteration
+const fs = require("fs");
+const https = require("https");
 
-on:
-  issues:
-    types: [opened, edited]
-  issue_comment:
-    types: [created]
+function postJson(hostname, path, headers, payload) {
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname,
+      path,
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, headers)
+    }, (res) => {
+      let body = "";
+      res.on("data", chunk => body += chunk);
+      res.on("end", () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          try { resolve(JSON.parse(body)); } catch (e) { reject(e); }
+        } else {
+          reject(new Error(`HTTP ${res.statusCode}: ${body}`));
+        }
+      });
+    });
+    req.on("error", reject);
+    req.write(JSON.stringify(payload));
+    req.end();
+  });
+}
 
-permissions:
-  contents: write
-  issues: write
+async function callGemini(prompt) {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error("未設定 GEMINI_API_KEY");
+  
+  const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
+  for (const m of models) {
+    try {
+      const res = await postJson(
+        "generativelanguage.googleapis.com",
+        `/v1beta/models/${m}:generateContent?key=${key}`,
+        {},
+        { contents: [{ parts: [{ text: prompt }] }] }
+      );
+      return { text: res.candidates[0].content.parts[0].text, model: `Gemini (${m})` };
+    } catch (e) {
+      console.warn(`Gemini ${m} 嘗試失敗:`, e.message);
+    }
+  }
+  throw new Error("Gemini 端點全部連線失敗");
+}
 
-jobs:
-  iterate:
-    if: "!github.event.issue.pull_request"
-    runs-on: ubuntu-latest
-    steps:
-      - name: 下載專案代碼
-        uses: actions/checkout@v4
+async function callChatGPT(prompt) {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) throw new Error("未設定 OPENAI_API_KEY");
+  const res = await postJson(
+    "api.openai.com",
+    "/v1/chat/completions",
+    { "Authorization": `Bearer ${key}` },
+    { model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }] }
+  );
+  return { text: res.choices[0].message.content, model: "OpenAI (gpt-4o-mini)" };
+}
 
-      - name: 安裝 Google AI 官方套件
-        run: npm install @google/genai
+async function main() {
+  if (!fs.existsSync("index.html")) {
+    throw new Error("找不到 index.html，請確認檔案在倉庫根目錄。");
+  }
 
-      - name: 執行 AI 迭代與改動分析
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ISSUE_TITLE: ${{ github.event.issue.title }}
-          ISSUE_BODY: ${{ github.event.issue.body }}
-        run: |
-          node -e '
-          const fs = require("fs");
-          const https = require("https");
-          const { GoogleGenAI } = require("@google/genai");
+  const currentHtml = fs.readFileSync("index.html", "utf-8");
+  const title = process.env.ISSUE_TITLE || "";
+  const body = process.env.ISSUE_BODY || "";
 
-          function makeRequest(options, postData) {
-            return new Promise((resolve, reject) => {
-              const req = https.request(options, (res) => {
-                let data = "";
-                res.on("data", chunk => data += chunk);
-                res.on("end", () => {
-                  if (res.statusCode >= 200 && res.statusCode < 300) {
-                    try { resolve(JSON.parse(data)); } catch (e) { reject(e); }
-                  } else {
-                    reject({ status: res.statusCode, body: data });
-                  }
-                });
-              });
-              req.on("error", reject);
-              req.write(postData);
-              req.end();
-            });
-          }
+  const prompt = `你是一個專業前端架構師與 UI/UX 設計師。
+修改需求：
+標題：${title}
+內容：${body}
 
-          async function callGemini(prompt) {
-            if (!process.env.GEMINI_API_KEY) throw new Error("未設定 GEMINI_API_KEY");
-            const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-            // 修正為官方標準模型：以極速且穩定的 1.5-flash 為主力，接著切換 1.5-pro 與 2.0
-            const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp"];
-            for (const model of models) {
-              try {
-                const response = await ai.models.generateContent({ model, contents: prompt });
-                return { text: response.text, model: `Gemini 系列 (${model})` };
-              } catch (e) {
-                console.warn(`Gemini ${model} 嘗試失敗，切換下一組備援:`, e.message || e);
-              }
-            }
-            throw new Error("Gemini 端點全部無法連線");
-          }
+請依據需求審視並重構現有的 index.html。
+規範：
+1. 嚴格保留現有 HTML 中已有的客製化資訊與架構。
+2. 回傳乾淨的 JSON 格式（嚴禁外層包含 markdown 代碼框標記）：
+{
+  "summary": "條列繁體中文說明具體優化了哪些樣式或邏輯",
+  "new_html": "完整的 HTML 代碼"
+}
 
-          async function callChatGPT(prompt) {
-            if (!process.env.OPENAI_API_KEY) throw new Error("未設定 OPENAI_API_KEY");
-            const targetModels = ["gpt-4o", "gpt-4o-mini"];
-            for (const model of targetModels) {
-              try {
-                const postData = JSON.stringify({
-                  model: model,
-                  messages: [{ role: "user", content: prompt }]
-                });
-                const res = await makeRequest({
-                  hostname: "api.openai.com",
-                  path: "/v1/chat/completions",
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-                  }
-                }, postData);
-                return { text: res.choices[0].message.content, model: `OpenAI 系列 (${model})` };
-              } catch (e) {
-                console.warn(`OpenAI ${model} 呼叫失敗，嘗試備援:`, e.message || e);
-              }
-            }
-            throw new Error("OpenAI 端點調用失敗");
-          }
+目前的 index.html：
+${currentHtml}`;
 
-          async function main() {
-            if (!fs.existsSync("index.html")) {
-              throw new Error("找不到 index.html 檔案，請確認檔案位於倉庫根目錄。");
-            }
+  let result = null;
+  try {
+    result = await callGemini(prompt);
+  } catch (e) {
+    console.warn("Gemini 失敗，嘗試轉接 OpenAI 備援：", e.message);
+    result = await callChatGPT(prompt);
+  }
 
-            const currentHtml = fs.readFileSync("index.html", "utf-8");
-            const title = process.env.ISSUE_TITLE || "";
-            const body = process.env.ISSUE_BODY || "";
+  const cleanJson = result.text.replace(/```json/gi, "").replace(/```/g, "").trim();
+  const parsed = JSON.parse(cleanJson);
 
-            const prompt = `你是一個專業頂級前端架構師與 UI/UX 設計師。
-            修改需求：
-            標題：${title}
-            內容：${body}
+  fs.writeFileSync("index.html", parsed.new_html.trim());
+  fs.writeFileSync("report.txt", `### 執行引擎\n- **${result.model}**\n\n### 代碼審查與改動清單\n${parsed.summary}`);
+  console.log("迭代成功！模型：", result.model);
+}
 
-            請依據需求審視並重構現有的 index.html。
-            重要規範：
-            1. 必須嚴格保留現有 HTML 中使用者自行設定的文字、品名、地址、電話與價格資訊，不得移除或還原為舊預設值。
-            2. 回傳格式必須為乾淨的標準 JSON 格式，嚴禁任何外層 markdown 標記（不要輸出 \`\`\`json 或 \`\`\`）：
-            {
-              "summary": "以 2-3 點條列繁體中文說明具體審核與優化了哪些代碼架構、視覺樣式或互動邏輯",
-              "new_html": "修改後的完整完整 HTML 代碼"
-            }
-
-            目前的 index.html：
-            ${currentHtml}`;
-
-            const forceGPT = title.toUpperCase().includes("GPT");
-            let result = null;
-
-            if (forceGPT) {
-              console.log("偵測到標題包含 [GPT]，指定 OpenAI 模型執行...");
-              try {
-                result = await callChatGPT(prompt);
-                result.model += " [指定旗艦]";
-              } catch (e) {
-                console.warn("GPT 旗艦調用失敗，自動切換至 Gemini 備援：", e.message || e);
-                result = await callGemini(prompt);
-                result.model += " [自動轉 Gemini 備援]";
-              }
-            } else {
-              try {
-                result = await callGemini(prompt);
-              } catch (e) {
-                console.warn("Gemini 調用失敗，嘗試轉接 OpenAI 備援：", e.message || e);
-                result = await callChatGPT(prompt);
-                result.model += " [自動轉 GPT 備援]";
-              }
-            }
-
-            const cleanJson = result.text.replace(/```json/gi, "").replace(/
+main().catch(err => {
+  console.error("執行失敗：", err);
+  process.exit(1);
+});
