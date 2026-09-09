@@ -1,0 +1,158 @@
+name: AI Autonomous Coder
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  modify-code:
+    if: github.event.issue.title != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: 下載專案代碼
+        uses: actions/checkout@v4
+
+      - name: 執行雙模型 AI 迭代與改動分析
+        env:
+          GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          node -e '
+          const fs = require("fs");
+          const https = require("https");
+
+          function makeRequest(options, postData) {
+            return new Promise((resolve, reject) => {
+              const req = https.request(options, (res) => {
+                let data = "";
+                res.on("data", chunk => data += chunk);
+                res.on("end", () => {
+                  if (res.statusCode >= 200 && res.statusCode < 300) {
+                    resolve(JSON.parse(data));
+                  } else {
+                    reject({ status: res.statusCode, body: data });
+                  }
+                });
+              });
+              req.on("error", reject);
+              req.write(postData);
+              req.end();
+            });
+          }
+
+          async function callGemini(prompt) {
+            const url = new URL(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${process.env.GEMINI_KEY}`);
+            const postData = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });
+            const res = await makeRequest({
+              hostname: url.hostname,
+              path: url.pathname + url.search,
+              method: "POST",
+              headers: { "Content-Type": "application/json" }
+            }, postData);
+            return res.candidates[0].content.parts[0].text;
+          }
+
+          async function callChatGPT(prompt) {
+            const postData = JSON.stringify({
+              model: "gpt-4o",
+              messages: [{ role: "user", content: prompt }]
+            });
+            const res = await makeRequest({
+              hostname: "api.openai.com",
+              path: "/v1/chat/completions",
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.OPENAI_KEY}`
+              }
+            }, postData);
+            return res.choices[0].message.content;
+          }
+
+          async function main() {
+            const currentHtml = fs.readFileSync("index.html", "utf-8");
+            const title = process.env.ISSUE_TITLE || "";
+            const body = process.env.ISSUE_BODY || "";
+
+            const prompt = `你是一個專業前端架構師。
+            使用者的修改需求：
+            標題：${title}
+            內容：${body}
+
+            請依據需求修改現有的 index.html。
+            重要規範：
+            1. 必須嚴格保留現有 HTML 中使用者自行設定的文字、品名、地址與價格，不得覆蓋還原。
+            2. 回傳格式必須為合法的 JSON 格式，不要包含任何 markdown 標籤（不要寫 \`\`\`json）：
+            {
+              "summary": "以 2-3 點條列繁體中文說明你具體改了哪些部分、新增了什麼功能",
+              "new_html": "修改後的完整完整 HTML 代碼"
+            }
+
+            目前的 index.html：
+            ${currentHtml}`;
+
+            let rawOutput = "";
+            let modelUsed = "";
+
+            const forceGPT = title.toLowerCase().includes("[gpt]") || body.toLowerCase().includes("#gpt");
+
+            if (forceGPT) {
+              try {
+                rawOutput = await callChatGPT(prompt);
+                modelUsed = "ChatGPT (GPT-4o) [手動指定]";
+              } catch (e) {
+                console.warn("ChatGPT 異常，切換至 Gemini 備援：", e.status || e);
+                rawOutput = await callGemini(prompt);
+                modelUsed = "Gemini Pro [自動備援]";
+              }
+            } else {
+              try {
+                rawOutput = await callGemini(prompt);
+                modelUsed = "Gemini Pro";
+              } catch (e) {
+                console.warn("Gemini 異常或額度耗盡，切換至 ChatGPT 備援：", e.status || e);
+                rawOutput = await callChatGPT(prompt);
+                modelUsed = "ChatGPT (GPT-4o) [自動備援]";
+              }
+            }
+
+            const cleanJson = rawOutput.replace(/```json/g, "").replace(/```/g, "").trim();
+            const parsed = JSON.parse(cleanJson);
+
+            fs.writeFileSync("index.html", parsed.new_html.trim());
+            fs.writeFileSync("report.txt", `### 執行模型\n- **${modelUsed}**\n\n### 改動項目清單\n${parsed.summary}`);
+            console.log("迭代成功！模型：", modelUsed);
+          }
+
+          main().catch(err => {
+            console.error("執行失敗：", err);
+            process.exit(1);
+          });
+          '
+
+      - name: 推送更新代碼
+        run: |
+          git config --global user.name "AI-Auto-Coder"
+          git config --global user.email "ai-coder@github.com"
+          git add index.html
+          git commit -m "AI 依據 Issue #${{ github.event.issue.number }} 自動迭代" || exit 0
+          git push
+
+      - name: 回覆 Issue 詳細報告
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.existsSync('report.txt') ? fs.readFileSync('report.txt', 'utf-8') : '無改動細節報告';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🎉 **AI 迭代任務已完成並發布上線！**\n\n${report}\n\n---\n*請等待約 1 分鐘後重新整理 GitHub Pages 頁面檢驗成果。*`
+            })
