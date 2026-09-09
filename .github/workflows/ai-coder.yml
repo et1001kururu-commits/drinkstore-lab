@@ -21,7 +21,6 @@ jobs:
       - name: 執行 AI 迭代與改動分析
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
@@ -56,7 +55,7 @@ jobs:
           async function callGemini(prompt) {
             const key = process.env.GEMINI_API_KEY;
             if (!key) throw new Error("未設定 GEMINI_API_KEY");
-            const models = ["gemini-2.5-flash", "gemini-1.5-flash"];
+            const models = ["gemini-3.6-flash"];
             for (const m of models) {
               try {
                 const res = await postJson(
@@ -70,19 +69,7 @@ jobs:
                 console.warn(`Gemini ${m} 失敗:`, e.message);
               }
             }
-            throw new Error("Gemini 全部連線失敗");
-          }
-
-          async function callChatGPT(prompt) {
-            const key = process.env.OPENAI_API_KEY;
-            if (!key) throw new Error("未設定 OPENAI_API_KEY");
-            const res = await postJson(
-              "api.openai.com",
-              "/v1/chat/completions",
-              { "Authorization": `Bearer ${key}` },
-              { model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }] }
-            );
-            return { text: res.choices[0].message.content, model: "OpenAI (gpt-4o-mini)" };
+            throw new Error("Gemini 端點連線失敗");
           }
 
           async function main() {
@@ -108,13 +95,7 @@ jobs:
           目前的 index.html：
           ${currentHtml}`;
 
-            let result = null;
-            try {
-              result = await callGemini(prompt);
-            } catch (e) {
-              console.warn("Gemini 失敗，嘗試 OpenAI 備援：", e.message);
-              result = await callChatGPT(prompt);
-            }
+            const result = await callGemini(prompt);
 
             const cleanJson = result.text.replace(/```json/gi, "").replace(/```/g, "").trim();
             const parsed = JSON.parse(cleanJson);
