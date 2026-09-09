@@ -1,616 +1,152 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DRINK STORE 水雲朵 - 潮流極粹茶飲</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- 精選飲品動態展示區 (精品全景沉浸式 3D 輪播) -->
+  <section id="featured" style="max-width: 100%; padding: 0; background: linear-gradient(135deg, #fdfbf7 0%, #f3eee6 100%); overflow: hidden;">
+    <!-- 隱藏原本的深色標題，改用空間感 -->
+    <h2 style="display: none;">精選飲品動態展示區</h2>
+    
+    <div class="immersive-slider" id="featured-slider">
+      <!-- 骨架屏 Loading -->
+      <div class="immersive-slide">
+        <div class="skeleton-box" style="width: 50vw; height: 10vw; position: absolute; z-index: 1;"></div>
+        <div class="skeleton-box" style="width: 160px; height: 260px; clip-path: polygon(20% 0%, 80% 0%, 75% 100%, 25% 100%); z-index: 2;"></div>
+      </div>
+    </div>
+  </section>
+
   <style>
-    :root {
-      --bg-dark: #101416;
-      --bg-card: #182024;
-      --bg-card-hover: #1e282e;
-      --morandi-green: #54756c;
-      --morandi-green-light: #769a90;
-      --morandi-dark: #273834;
-      --morandi-slate: #3a4953;
-      --morandi-silver: #9aaab4;
-      --text-main: #ecefe6;
-      --text-sub: #8b9ea0;
-      --border-color: rgba(255, 255, 255, 0.08);
-      --border-glow: rgba(84, 117, 108, 0.4);
-      --accent-gold: #c5a880;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-      line-height: 1.7;
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      letter-spacing: 0.04em;
-      overflow-x: hidden;
-    }
-
-    /* Header Navigation */
-    header {
-      background: rgba(16, 20, 22, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-color);
-      padding: 1.2rem 2.5rem;
+    /* 影片風格專用 CSS */
+    .immersive-slider {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      transition: border-color 0.3s;
-    }
-
-    .logo {
-      font-weight: 700;
-      font-size: 1.25rem;
-      color: var(--text-main);
-      letter-spacing: 0.1em;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .logo::before {
-      content: '';
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      background: var(--morandi-green-light);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--morandi-green-light);
-    }
-
-    nav a {
-      margin-left: 1.8rem;
-      text-decoration: none;
-      color: var(--text-sub);
-      font-size: 0.95rem;
-      font-weight: 400;
-      position: relative;
-      transition: color 0.3s ease;
-      padding: 0.3rem 0;
-    }
-
-    nav a:hover {
-      color: var(--morandi-green-light);
-    }
-
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: var(--morandi-green-light);
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    nav a:hover::after {
       width: 100%;
-    }
-
-    /* Hero Section */
-    .hero {
-      background: linear-gradient(135deg, rgba(39, 56, 52, 0.8) 0%, rgba(16, 20, 22, 0.95) 100%),
-                  radial-gradient(circle at 80% 20%, rgba(84, 117, 108, 0.15) 0%, transparent 50%);
-      color: var(--text-main);
-      text-align: center;
-      padding: 6rem 1.5rem;
-      border-bottom: 1px solid var(--border-color);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.015) 2px, rgba(255, 255, 255, 0.015) 4px);
-      pointer-events: none;
-    }
-
-    .hero h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      letter-spacing: 0.12em;
-      background: linear-gradient(180deg, #ffffff 0%, var(--morandi-silver) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero p {
-      font-size: 1.05rem;
-      color: var(--text-sub);
-      font-weight: 300;
-      letter-spacing: 0.08em;
-    }
-
-    /* Section Commons */
-    section {
-      padding: 4.5rem 1.5rem;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    h2 {
-      border-left: 3px solid var(--morandi-green-light);
-      padding-left: 1rem;
-      margin-bottom: 2rem;
-      color: var(--text-main);
-      font-size: 1.5rem;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      display: flex;
-      align-items: center;
-    }
-
-    /* === 精品級 3D 浮動卡片展示區 === */
-    .featured-section {
-      max-width: 100%;
-      padding: 5rem 0;
-      position: relative;
-    }
-    
-    .featured-section h2 {
-      max-width: 900px;
-      margin: 0 auto 2rem auto;
-      padding: 0 1.5rem;
-    }
-
-    .featured-slider {
-      display: flex;
-      gap: 3rem;
+      height: 75vh;
+      min-height: 600px;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
-      /* 確保最左與最右的卡片能完美置中 */
-      padding: 2rem calc(50vw - 170px) 4rem calc(50vw - 170px);
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none; /* 隱藏卷軸 */
       scroll-behavior: smooth;
+      scrollbar-width: none;
     }
-    .featured-slider::-webkit-scrollbar {
+    .immersive-slider::-webkit-scrollbar {
       display: none;
     }
 
-    .featured-slide {
-      flex: 0 0 340px;
+    .immersive-slide {
+      flex: 0 0 100vw;
+      height: 100%;
       scroll-snap-align: center;
       position: relative;
-      background: linear-gradient(145deg, rgba(30, 40, 46, 0.7) 0%, rgba(16, 20, 22, 0.9) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 28px;
-      padding: 3.5rem 1.5rem 2.5rem;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
-      text-align: center;
-      transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
       overflow: hidden;
     }
 
-    .featured-slide:hover {
-      transform: translateY(-12px);
-      border-color: rgba(255, 255, 255, 0.15);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-
-    /* 巨大的背景浮水印字體 */
-    .bg-watermark {
+    /* 巨大背景英文字 (如影片的 Walnut) */
+    .bg-giant-text {
       position: absolute;
-      top: 15%;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      font-size: 6rem;
+      transform: translate(-50%, -50%);
+      font-size: 18vw; /* 超巨大字體 */
       font-weight: 900;
       font-family: 'Arial Black', Impact, sans-serif;
-      text-transform: uppercase;
-      opacity: 0.12;
+      text-transform: capitalize;
+      z-index: 1;
       white-space: nowrap;
       pointer-events: none;
-      z-index: 0;
-      letter-spacing: -0.02em;
+      /* 讓字體顏色吃飲料主色，並微微透明 */
+      opacity: 0.15;
     }
 
-    /* 懸浮手搖杯與光暈 */
-    .cup-showcase {
+    /* 前景主視覺 (未來可替換為 img 標籤) */
+    .cup-hero {
       position: relative;
-      width: 140px;
-      height: 190px;
-      margin: 1.5rem 0 2.5rem 0;
-      z-index: 2;
-      /* 浮動呼吸動畫 */
-      animation: floating 4s ease-in-out infinite;
+      width: 160px;
+      height: 260px;
+      z-index: 5;
+      animation: float-cup 4s ease-in-out infinite;
     }
 
-    @keyframes floating {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-14px); }
-    }
-
-    .cup-glow {
-      position: absolute;
-      top: 20%;
-      left: 10%;
-      width: 80%;
-      height: 70%;
-      border-radius: 50%;
-      filter: blur(35px);
-      opacity: 0.5;
-      transition: opacity 0.5s;
-    }
-
-    .featured-slide:hover .cup-glow {
-      opacity: 0.8;
-      filter: blur(45px);
-    }
-
-    /* 純 CSS 上寬下窄梯形手搖杯，帶立體漸層 */
-    .cup-body {
+    /* 純 CSS 梯形飲料杯模擬 (帶圓角與玻璃反光感) */
+    .cup-glass {
       width: 100%;
       height: 100%;
-      clip-path: polygon(15% 0%, 85% 0%, 75% 100%, 25% 100%);
+      clip-path: polygon(20% 0%, 80% 0%, 75% 100%, 25% 100%);
       position: relative;
-      z-index: 2;
-      /* 內部打光與陰影營造立體感 */
-      box-shadow: inset 0 20px 20px -10px rgba(255,255,255,0.4), 
-                  inset 0 -20px 30px rgba(0,0,0,0.5);
-    }
-
-    /* 懸浮核桃 / 小色塊點綴 */
-    .decor-dot {
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.5;
-      filter: blur(2px);
-      z-index: 1;
-    }
-    .dot-1 { width: 14px; height: 14px; top: 20%; left: 15%; animation: float-slow 5s infinite alternate; }
-    .dot-2 { width: 22px; height: 22px; top: 60%; right: 12%; animation: float-slow 7s infinite alternate-reverse; }
-    .dot-3 { width: 10px; height: 10px; bottom: 30%; left: 22%; animation: float-slow 6s infinite alternate; }
-
-    @keyframes float-slow {
-      0% { transform: translate(0, 0) rotate(0deg); }
-      100% { transform: translate(15px, -20px) rotate(45deg); }
-    }
-
-    /* 卡片文字與按鈕 */
-    .slide-content {
-      position: relative;
-      z-index: 3;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-    }
-
-    .slide-tag {
-      padding: 0.35rem 1.2rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 30px;
-      font-size: 0.8rem;
-      color: #fff;
-      margin-bottom: 1rem;
-      backdrop-filter: blur(4px);
-    }
-
-    .slide-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 0.6rem;
-      line-height: 1.3;
-    }
-
-    .slide-desc {
-      font-size: 0.9rem;
-      color: var(--text-sub);
-      margin-bottom: 1.8rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .slide-btn {
-      padding: 0.7rem 1.8rem;
-      background: #fff;
-      color: #101416;
-      border: none;
-      border-radius: 30px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      width: 80%;
+      background-size: cover;
+      box-shadow: inset 10px 0 20px rgba(255,255,255,0.6), inset -10px 0 20px rgba(0,0,0,0.1);
     }
     
-    .slide-btn:hover {
-      background: var(--morandi-green-light);
-      color: #fff;
-      transform: scale(1.05);
-      box-shadow: 0 10px 20px rgba(118, 154, 144, 0.3);
+    .cup-shadow {
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 15px;
+      background: rgba(0,0,0,0.15);
+      border-radius: 50%;
+      filter: blur(8px);
+      z-index: 4;
+      animation: shadow-scale 4s ease-in-out infinite;
     }
 
-    /* Skeleton Loader */
-    .skeleton-slide {
-      flex: 0 0 340px;
-      scroll-snap-align: center;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 28px;
-      padding: 3.5rem 1.5rem 2.5rem;
+    /* 懸浮景深物件 (模擬影片中的核桃/杏仁) */
+    .float-item {
+      position: absolute;
+      border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+      background: var(--main-color);
+      z-index: 3;
+    }
+    .float-1 { width: 60px; height: 50px; top: 25%; left: 15%; filter: blur(5px); animation: float-obj 6s infinite alternate; }
+    .float-2 { width: 40px; height: 40px; bottom: 30%; right: 20%; filter: blur(2px); animation: float-obj 5s infinite alternate-reverse; }
+    .float-3 { width: 90px; height: 80px; top: 15%; right: 10%; filter: blur(12px); opacity: 0.6; animation: float-obj 8s infinite alternate; }
+    .float-4 { width: 50px; height: 55px; bottom: 25%; left: 25%; filter: blur(1px); animation: float-obj 7s infinite alternate-reverse; }
+
+    @keyframes float-cup {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    @keyframes shadow-scale {
+      0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.15; }
+      50% { transform: translateX(-50%) scale(0.8); opacity: 0.05; }
+    }
+    @keyframes float-obj {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(20px, -30px) rotate(45deg); }
+    }
+
+    /* 下方精緻資訊區 */
+    .slide-info {
+      position: absolute;
+      bottom: 8%;
       display: flex;
       flex-direction: column;
       align-items: center;
+      z-index: 10;
     }
-    .skeleton-box {
-      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
-      background-size: 200% 100%;
-      animation: skeleton-shimmer 1.5s infinite;
-    }
-    @keyframes skeleton-shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    /* Menu Tabs */
-    .menu-tabs {
-      display: flex;
-      gap: 0.75rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .menu-tabs button {
-      padding: 0.6rem 1.4rem;
-      border: 1px solid var(--border-color);
-      background: var(--bg-card);
-      color: var(--text-sub);
-      cursor: pointer;
-      border-radius: 30px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .menu-tabs button:hover {
-      border-color: var(--morandi-green-light);
-      color: var(--text-main);
-      transform: translateY(-2px);
-    }
-
-    .menu-tabs button.active {
-      background: var(--morandi-green);
-      border-color: var(--morandi-green);
-      color: #fff;
-      box-shadow: 0 4px 15px rgba(84, 117, 108, 0.35);
-    }
-
-    /* Drink Grid & Cards */
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .drink-card {
-      background: var(--bg-card);
-      padding: 1.8rem 1.5rem;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      text-align: center;
-      position: relative;
-      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-      overflow: hidden;
-    }
-
-    .drink-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--morandi-green-light), transparent);
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
-
-    .drink-card:hover {
-      transform: translateY(-8px);
-      background: var(--bg-card-hover);
-      border-color: var(--border-glow);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(84, 117, 108, 0.15);
-    }
-
-    .drink-card:hover::before {
-      opacity: 1;
-    }
-
-    .drink-card h4 {
-      font-size: 1.05rem;
-      color: var(--text-main);
-      font-weight: 500;
-      margin-bottom: 0.8rem;
-    }
-
-    .drink-card p {
-      color: var(--morandi-green-light);
+    
+    .slide-info h3 {
+      font-size: 1.2rem;
+      color: #333;
       font-weight: 700;
-      font-size: 1.1rem;
+      margin-bottom: 1rem;
       letter-spacing: 0.05em;
     }
 
-    /* Store Controls & Items */
-    .store-filter {
-      margin-bottom: 1.5rem;
-      padding: 0.75rem 1rem;
-      width: 100%;
-      max-width: 260px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.95rem;
-      outline: none;
-      cursor: pointer;
-      transition: border-color 0.3s ease;
-    }
-
-    .store-filter:focus, .store-filter:hover {
-      border-color: var(--morandi-green-light);
-    }
-
-    .store-item {
-      background: var(--bg-card);
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      transition: all 0.3s ease;
-    }
-
-    .store-item:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-      transform: translateX(4px);
-    }
-
-    .store-item strong {
-      display: block;
-      font-size: 1.1rem;
-      color: var(--text-main);
-      margin-bottom: 0.5rem;
-    }
-
-    .store-item p {
-      color: var(--text-sub);
-      font-size: 0.9rem;
-      margin-top: 0.2rem;
-    }
-
-    /* Form Elements */
-    form {
-      background: var(--bg-card);
-      padding: 2.2rem;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: var(--text-sub);
-      font-size: 0.9rem;
-    }
-
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      background: var(--bg-dark);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    .form-group input:focus, .form-group select:focus {
-      border-color: var(--morandi-green-light);
-      box-shadow: 0 0 0 3px rgba(84, 117, 108, 0.2);
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 0.9rem;
-      background: linear-gradient(135deg, var(--morandi-green) 0%, var(--morandi-dark) 100%);
+    /* 影片風格的黑色小膠囊按鈕 */
+    .shop-now-btn {
+      padding: 0.7rem 2.5rem;
+      background: #111;
       color: #fff;
       border: none;
-      border-radius: 6px;
-      font-size: 1rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
       font-weight: 500;
-      font-family: inherit;
       cursor: pointer;
-      letter-spacing: 0.1em;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s, background 0.3s;
     }
-
-    .submit-btn:hover {
-      background: linear-gradient(135deg, var(--morandi-green-light) 0%, var(--morandi-green) 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(84, 117, 108, 0.4);
-    }
-
-    .submit-btn:active {
-      transform: translateY(0);
-    }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 3rem 1.5rem;
-      font-size: 0.85rem;
-      color: var(--text-sub);
-      border-top: 1px solid var(--border-color);
-      background: #0b0e10;
-      line-height: 1.8;
-    }
-
-    footer p {
-      margin-bottom: 0.3rem;
-    }
-
-    @media (max-width: 600px) {
-      header { padding: 1rem 1.2rem; }
-      .hero { padding: 4rem 1rem; }
-      .hero h1 { font-size: 1.8rem; }
-      section { padding: 3rem 1rem; }
-      form { padding: 1.5rem; }
-      .featured-slider { padding: 2rem 1.5rem 4rem 1.5rem; }
-      .featured-slide { flex: 0 0 280px; padding: 2.5rem 1.2rem 2rem; }
+    .shop-now-btn:hover {
+      background: #333;
+      transform: scale(1.05);
     }
   </style>
-</head>
-<body>
-
-  <header>
-    <div class="logo">DRINK STORE 水雲朵 (最爛版)</div>
-    <nav>
-      <a href="#featured">精選動態</a>
-      <a href="#menu">嚼美菜單</a>
-      <a href="#stores">門市據點</a>
-      <a href="#franchise">加盟專區</a>
-    </nav>
-  </header>
-
-  <div class="hero">
-    <h1>伯爵嚼霜 ‧ 咀嚼系新主張</h1>
-    <p>慶祝第一天上線，全店免費喝到飽</p>
-  </div>
-
-  <section id="featured" class="featured-section">
-    <h2>精選飲品動態展示區</h2>
-    <div class="featured-slider" id="featured-slider">
-      <div class="skeleton-slide">
-        <div class="skeleton-box" style="width: 140px; height: 190px;
