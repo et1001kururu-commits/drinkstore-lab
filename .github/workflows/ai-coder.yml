@@ -22,62 +22,129 @@ jobs:
       - name: 執行 AI 迭代與改動分析
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
           node -e '
           const fs = require("fs");
+          const https = require("https");
           const { GoogleGenAI } = require("@google/genai");
 
-          async function main() {
+          function makeRequest(options, postData) {
+            return new Promise((resolve, reject) => {
+              const req = https.request(options, (res) => {
+                let data = "";
+                res.on("data", chunk => data += chunk);
+                res.on("end", () => {
+                  if (res.statusCode >= 200 && res.statusCode < 300) {
+                    try { resolve(JSON.parse(data)); } catch (e) { reject(e); }
+                  } else {
+                    reject({ status: res.statusCode, body: data });
+                  }
+                });
+              });
+              req.on("error", reject);
+              req.write(postData);
+              req.end();
+            });
+          }
+
+          async function callGemini(prompt) {
             const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+            // Pro 優先，Flash 作為後續備援
+            const models = ["gemini-1.5-pro", "gemini-3.6-flash", "gemini-2.0-flash"];
+            for (const model of models) {
+              try {
+                const response = await ai.models.generateContent({ model, contents: prompt });
+                return { text: response.text, model: `Gemini Pro 系列 (${model})` };
+              } catch (e) {
+                console.warn(`Gemini ${model} 嘗試失敗，切換下一組備援...`);
+              }
+            }
+            throw new Error("Gemini 端點全部無法連線");
+          }
+
+          async function callChatGPT(prompt) {
+            if (!process.env.OPENAI_API_KEY) throw new Error("未設定 OPENAI_API_KEY");
+            
+            // 頂規推理算力優先（o3 -> gpt-4o）
+            const targetModels = ["o3", "gpt-4o"];
+            for (const model of targetModels) {
+              try {
+                const postData = JSON.stringify({
+                  model: model,
+                  messages: [{ role: "user", content: prompt }]
+                });
+                const res = await makeRequest({
+                  hostname: "api.openai.com",
+                  path: "/v1/chat/completions",
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+                  }
+                }, postData);
+                return { text: res.choices[0].message.content, model: `OpenAI 頂規算力 (${model})` };
+              } catch (e) {
+                console.warn(`OpenAI ${model} 呼叫失敗，嘗試備援...`);
+              }
+            }
+            throw new Error("OpenAI 端點調用失敗");
+          }
+
+          async function main() {
             const currentHtml = fs.readFileSync("index.html", "utf-8");
             const title = process.env.ISSUE_TITLE || "";
             const body = process.env.ISSUE_BODY || "";
 
-            const prompt = `你是一個專業前端架構師。
+            const prompt = `你是一個專業頂級前端架構師與 UI/UX 設計師。
             修改需求：
             標題：${title}
             內容：${body}
 
-            請依據需求修改現有的 index.html。
+            請依據需求審視並重構現有的 index.html。
             重要規範：
-            1. 必須嚴格保留現有 HTML 中使用者自行設定的文字、品名、地址與價格，不得覆蓋還原。
-            2. 回傳格式必須為合法 JSON 格式，嚴禁任何 markdown 標籤（不要寫 \`\`\`json）：
+            1. 必須嚴格保留現有 HTML 中使用者自行設定的文字、品名、地址、電話與價格資訊，不得移除或還原為舊預設值。
+            2. 回傳格式必須為乾淨的 JSON 格式，嚴禁任何外層 markdown 標記（絕對不要輸出 \`\`\`json 或 \`\`\`）：
             {
-              "summary": "以 2-3 點條列繁體中文說明具體改了哪些部分",
-              "new_html": "修改後的完整 HTML 代碼"
+              "summary": "以 2-3 點條列繁體中文說明具體審核與優化了哪些代碼架構、視覺樣式或互動邏輯",
+              "new_html": "修改後的完整完整 HTML 代碼"
             }
 
             目前的 index.html：
             ${currentHtml}`;
 
-            let text = "";
-            const models = ["gemini-3.6-flash", "gemini-2.0-flash", "gemini-2.0-flash-exp"];
-            let usedModel = "";
+            // 標題包含 GPT（不分大小寫）即強制走最高算力 GPT
+            const forceGPT = title.toUpperCase().includes("GPT");
+            let result = null;
 
-            for (const model of models) {
+            if (forceGPT) {
+              console.log("偵測到標題包含 [GPT]，指定 OpenAI 最高算力模型執行...");
               try {
-                const response = await ai.models.generateContent({
-                  model: model,
-                  contents: prompt,
-                });
-                text = response.text;
-                usedModel = model;
-                break;
+                result = await callChatGPT(prompt);
+                result.model += " [指定旗艦]";
               } catch (e) {
-                console.warn(`嘗試 ${model} 失敗：`, e.message || e);
+                console.warn("GPT 旗艦調用失敗（可能是額度不足），自動切換至 Gemini Pro 備援：", e.message || e);
+                result = await callGemini(prompt);
+                result.model += " [自動轉 Gemini Pro 備援]";
+              }
+            } else {
+              try {
+                result = await callGemini(prompt);
+              } catch (e) {
+                console.warn("Gemini Pro 系列調用失敗，嘗試轉接 OpenAI 備援：", e.message || e);
+                result = await callChatGPT(prompt);
+                result.model += " [自動轉 GPT 備援]";
               }
             }
 
-            if (!text) throw new Error("所有可用模型端點呼叫皆未回應，請檢查 API 金鑰。");
-
-            const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
+            const cleanJson = result.text.replace(/```json/g, "").replace(/```/g, "").trim();
             const parsed = JSON.parse(cleanJson);
 
             fs.writeFileSync("index.html", parsed.new_html.trim());
-            fs.writeFileSync("report.txt", `### 執行模型\n- **Gemini (${usedModel})**\n\n### 改動項目清單\n${parsed.summary}`);
-            console.log("迭代成功！模型：", usedModel);
+            fs.writeFileSync("report.txt", `### 執行引擎\n- **${result.model}**\n\n### 代碼審查與改動清單\n${parsed.summary}`);
+            console.log("迭代成功！模型：", result.model);
           }
 
           main().catch(err => {
