@@ -53,7 +53,7 @@ jobs:
             ${currentHtml}`;
 
             let text = "";
-            const models = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
+            const models = ["gemini-3.6-flash", "gemini-2.0-flash", "gemini-2.0-flash-exp"];
             let usedModel = "";
 
             for (const model of models) {
@@ -66,11 +66,11 @@ jobs:
                 usedModel = model;
                 break;
               } catch (e) {
-                console.warn(`嘗試 ${model} 失敗，切換下一組：`, e.message || e);
+                console.warn(`嘗試 ${model} 失敗：`, e.message || e);
               }
             }
 
-            if (!text) throw new Error("所有 Gemini 模型端點調用均失敗，請確認 API 金鑰是否有效。");
+            if (!text) throw new Error("所有可用模型端點呼叫皆未回應，請檢查 API 金鑰。");
 
             const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
             const parsed = JSON.parse(cleanJson);
